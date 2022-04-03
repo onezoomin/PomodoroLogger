@@ -4,6 +4,8 @@ import { handleMergeData } from './dataHandlers';
 const handlers: { [T in WorkerMessageType]: (msg: WorkerMessage<T>) => void } = {
     [WorkerMessageType.MergeData]: async (msg) => {
         const payload = await handleMergeData(msg);
+        console.log('merged payload', payload);
+
         send({
             payload,
             id: msg.id || Math.random(),

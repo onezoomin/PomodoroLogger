@@ -20,8 +20,9 @@ const addCard = createActionCreator(
         resolve({ _id, title, content, createdTime })
 );
 
-const renameCard = createActionCreator('[Card]RENAME', (resolve) => (_id: string, title: string) =>
-    resolve({ _id, title })
+const renameCard = createActionCreator(
+    '[Card]RENAME',
+    (resolve) => (_id: string, title: string) => resolve({ _id, title })
 );
 
 const setContent = createActionCreator(
@@ -44,12 +45,14 @@ const addActualTime = createActionCreator(
     (resolve) => (_id: string, plus: number) => resolve({ _id, plus })
 );
 
-const deleteCard = createActionCreator('[Card]DELETE_CARD', (resolve) => (_id: string) =>
-    resolve({ _id })
+const deleteCard = createActionCreator(
+    '[Card]DELETE_CARD',
+    (resolve) => (_id: string) => resolve({ _id })
 );
 
-const setCards = createActionCreator('[Card]SET_CARDS', (resolve) => (cards: CardsState) =>
-    resolve(cards)
+const setCards = createActionCreator(
+    '[Card]SET_CARDS',
+    (resolve) => (cards: CardsState) => resolve(cards)
 );
 
 export const actions = {
@@ -68,6 +71,8 @@ export const actions = {
     },
     setContent: (_id: string, content: string) => async (dispatch: Dispatch) => {
         dispatch(setContent(_id, content));
+        console.log(content);
+
         await db.update({ _id }, { $set: { content } });
     },
     setEstimatedTime: (_id: string, estimatedTime: number) => async (dispatch: Dispatch) => {
@@ -87,36 +92,35 @@ export const actions = {
         dispatch(deleteCard(_id));
         await db.remove({ _id });
     },
-    onTimerFinished: (_id: string, sessionId: string, spentTimeInHour: number) => async (
-        dispatch: Dispatch
-    ) => {
-        dispatch(addSession(_id, sessionId, spentTimeInHour));
-        await db.update(
-            { _id },
-            {
-                $push: { sessionIds: sessionId },
-                $inc: { 'spentTimeInHour.actual': spentTimeInHour },
-            }
-        );
-    },
-    addCard: (_id: string, listId: string, title: string, content: string = '') => async (
-        dispatch: Dispatch
-    ) => {
-        const now = +new Date();
-        dispatch(addCard(_id, title, content, now));
-        await listActions.addCardById(listId, _id)(dispatch);
-        await db.insert({
-            _id,
-            title,
-            content,
-            sessionIds: [],
-            spentTimeInHour: {
-                estimated: 0,
-                actual: 0,
-            },
-            createdTime: now,
-        } as Card);
-    },
+    onTimerFinished:
+        (_id: string, sessionId: string, spentTimeInHour: number) => async (dispatch: Dispatch) => {
+            dispatch(addSession(_id, sessionId, spentTimeInHour));
+            await db.update(
+                { _id },
+                {
+                    $push: { sessionIds: sessionId },
+                    $inc: { 'spentTimeInHour.actual': spentTimeInHour },
+                }
+            );
+        },
+    addCard:
+        (_id: string, listId: string, title: string, content: string = '') =>
+        async (dispatch: Dispatch) => {
+            const now = +new Date();
+            dispatch(addCard(_id, title, content, now));
+            await listActions.addCardById(listId, _id)(dispatch);
+            await db.insert({
+                _id,
+                title,
+                content,
+                sessionIds: [],
+                spentTimeInHour: {
+                    estimated: 0,
+                    actual: 0,
+                },
+                createdTime: now,
+            } as Card);
+        },
 };
 
 export const cardReducer = createReducer<CardsState, any>({}, (handle) => [

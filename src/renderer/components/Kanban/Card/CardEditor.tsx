@@ -12,6 +12,8 @@ import { Card } from '../type';
 import { Markdown } from '../style/Markdown';
 import formatMarkdown from './formatMarkdown';
 import { EditorContainer } from '../style/editorStyle';
+import { singleIssueQuery, testLocalCardId } from '../../../../main/io/persist';
+import { gql } from 'graphql-request';
 const { TabPane } = Tabs;
 
 interface Props extends CardActionTypes {
@@ -30,6 +32,8 @@ interface FormData {
 }
 
 const _CardInDetail: FC<Props> = React.memo((props: Props) => {
+    console.log('card edit', props);
+
     const [showMarkdownPreview, setShowMarkdownPreview] = useState(true);
     const [cardContent, setCardContent] = useState('');
     const { card, visible, form, onCancel, listId } = props;
@@ -47,6 +51,12 @@ const _CardInDetail: FC<Props> = React.memo((props: Props) => {
 
         setIsEditingActualTime(false);
         if (card) {
+            console.log('editing existing card', card);
+
+            if (card._id === testLocalCardId) {
+                // TODO do mock gitlab sync here (close to the ui)
+                console.log(singleIssueQuery);
+            }
             setShowMarkdownPreview(true);
             const time = card.spentTimeInHour.estimated;
             const actual = card.spentTimeInHour.actual;

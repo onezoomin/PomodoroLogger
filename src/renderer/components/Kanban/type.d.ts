@@ -10,6 +10,7 @@ export interface Card {
         actual: number;
     };
     createdTime?: number;
+    labels?: Label[];
 }
 
 export interface AggInfo {
@@ -22,6 +23,14 @@ export interface AggInfo {
 export interface Tag {
     name: string;
     count: number;
+}
+
+export interface Label {
+    id: string;
+    title: string;
+    description: string;
+    color: string;
+    textColor: string;
 }
 
 export interface KanbanBoard {
