@@ -14,6 +14,7 @@ import formatMarkdown from './formatMarkdown';
 import { EditorContainer } from '../style/editorStyle';
 import { singleIssueQuery, testLocalCardId } from '../../../../main/io/persist';
 import { gql } from 'graphql-request';
+import { Label } from './CardLabel';
 const { TabPane } = Tabs;
 
 interface Props extends CardActionTypes {
@@ -150,6 +151,23 @@ const _CardInDetail: FC<Props> = React.memo((props: Props) => {
         }
     }, []);
 
+    const labels = props.card?.labels ?? [
+        {
+            id: 'gid://gitlab/GroupLabel/24250023',
+            title: 'orga::default',
+            description: 'max 25m estimate',
+            color: '#dbbdcf',
+            textColor: '#333333',
+        },
+        {
+            id: 'gid://gitlab/GroupLabel/24248541',
+            title: 'unscoped label',
+            description: '',
+            color: '#8fbc8f',
+            textColor: '#FFFFFF',
+        },
+    ];
+
     return (
         <Modal
             visible={visible}
@@ -198,6 +216,12 @@ const _CardInDetail: FC<Props> = React.memo((props: Props) => {
                             />
                         </TabPane>
                     </Tabs>
+                    <Row>
+                        {labels.map((eachLabel) => {
+                            const { id: key } = eachLabel;
+                            return <Label {...{ key }} {...eachLabel} />;
+                        })}
+                    </Row>
                     <Row>
                         <Col span={12}>
                             <Form.Item label="Estimated Time In Hour">

@@ -14,6 +14,7 @@ import { matchParent } from '../../../utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../reducers';
 import { check } from 'prettier';
+import { Label } from './CardLabel';
 
 /**
  * If you're using z-index, make sure the element has a defined position attribute or it won't work.
@@ -147,7 +148,22 @@ export const Card: FC<Props> = React.memo((props: Props) => {
         newContent += oldContent.slice(lastEnd);
         return newContent;
     }, [props.content, props.searchReg]);
-
+    const labels = props.labels ?? [
+        {
+            id: 'gid://gitlab/GroupLabel/24250023',
+            title: 'orga::default',
+            description: 'max 25m estimate',
+            color: '#dbbdcf',
+            textColor: '#333333',
+        },
+        {
+            id: 'gid://gitlab/GroupLabel/24248541',
+            title: 'unscoped label',
+            description: '',
+            color: '#8fbc8f',
+            textColor: '#FFFFFF',
+        },
+    ];
     return (
         <>
             <Draggable draggableId={_id} index={index}>
@@ -219,6 +235,11 @@ export const Card: FC<Props> = React.memo((props: Props) => {
                                             ref={markdownRef}
                                         />
                                         <Divider style={{ margin: '0 0 4px 0' }} />
+                                        {labels.map((eachLabel) => {
+                                            const { id: key } = eachLabel;
+                                            return <Label {...{ key }} {...eachLabel} />;
+                                        })}
+                                        <Divider style={{ margin: '4px 0' }} />
                                         <BadgeHolder>
                                             {props.sessionIds.length > 0 ? (
                                                 <PomodoroDot num={props.sessionIds.length} />
