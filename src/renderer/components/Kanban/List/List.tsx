@@ -191,6 +191,7 @@ export const List: FC<Props> = React.memo((props: Props) => {
             reg = searchReg ? new RegExp(searchReg, 'gimsu') : undefined;
         } catch (e) {}
 
+        // TODO check syntax: why null?
         if (reg == null) {
             props.setVisibleCards(props._id, undefined);
             return undefined;
@@ -206,6 +207,11 @@ export const List: FC<Props> = React.memo((props: Props) => {
     }, [props._id, searchReg, props.cardsState, cards]);
 
     const filteredCards = visibleCards || props.cards || [];
+
+    // TODO create merged cardList
+    // const integrationCards = filteredCards.map((eachIcard) => {
+    //     return mapCardById(eachIcard.id)
+    //  })
     const [estimatedTimeSum, actualTimeSum] = React.useMemo(
         () =>
             filteredCards.reduce(

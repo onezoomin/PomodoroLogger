@@ -11,8 +11,16 @@ export interface Card {
     };
     createdTime?: number;
     labels?: Label[];
+    integrations?: IntegrationInfo;
 }
 
+export interface IntegrationInfo {
+    sourceOfTruth?: string;
+    gitlab?: GitlabIntegrationInfo;
+}
+export interface GitlabIntegrationInfo {
+    gid: string;
+}
 export interface AggInfo {
     lastUpdatedTime: number;
     spentTime: number;
