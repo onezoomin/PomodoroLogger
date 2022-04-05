@@ -9,6 +9,7 @@ import { isShallowEqualByKeys } from '../../utils';
 import pkg from '../../../../package.json';
 import { IpcEventName } from '../../../main/ipc/type';
 import { refreshDbs } from '../../../main/db';
+import { Integrations } from './Integrations';
 
 const Container = styled.div`
     padding: 12px 36px;
@@ -68,6 +69,7 @@ const settingUiStates = [
     'useHardwareAcceleration',
     'startOnBoot',
     'distractingList',
+    'integrations',
 ];
 
 interface Props extends TimerState, TimerActionTypes {}
@@ -196,71 +198,91 @@ export const Setting: React.FunctionComponent<Props> = React.memo(
                         </SliderContainer>
                     </Col>
                 </Row>
-                <span style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85)' }}>
-                    Hardware Acceleration
-                </span>
-                <Switch
-                    onChange={setUseHardwareAcceleration}
-                    checked={props.useHardwareAcceleration}
-                    style={{ margin: 8 }}
-                />
-                <br />
+                <Row>
+                    <Integrations setIntegrations={props.setIntegrations} />
+                </Row>
+                <Row style={{ padding: 12 }}>
+                    <Col span={8}>
+                        <Switch
+                            onChange={setUseHardwareAcceleration}
+                            checked={props.useHardwareAcceleration}
+                            style={{ margin: 8 }}
+                        />
+                        <span
+                            style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85)' }}
+                        >
+                            Hardware Acceleration
+                        </span>
+                        <br />
 
-                <span style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85)' }}>
-                    Start On Boot
-                </span>
-                <Switch
-                    onChange={setStartOnBoot}
-                    checked={props.startOnBoot}
-                    style={{ margin: 8 }}
-                />
-                <br />
-                <span style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85' }}>
-                    Auto Update
-                </span>
-                <Switch
-                    onChange={switchAutoUpdate}
-                    checked={props.autoUpdate}
-                    style={{ margin: 8 }}
-                />
-                <br />
+                        <Switch
+                            onChange={setStartOnBoot}
+                            checked={props.startOnBoot}
+                            style={{ margin: 8 }}
+                        />
+                        <span
+                            style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85)' }}
+                        >
+                            Start On Boot
+                        </span>
+                        <br />
 
-                <span style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85' }}>
-                    Screenshot
-                </span>
-                <Switch
-                    onChange={switchScreenshot}
-                    checked={!!props.screenShotInterval}
-                    style={{ margin: 8 }}
-                />
+                        <Switch
+                            onChange={switchAutoUpdate}
+                            checked={props.autoUpdate}
+                            style={{ margin: 8 }}
+                        />
+                        <span
+                            style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85' }}
+                        >
+                            Auto Update
+                        </span>
+                        <br />
 
-                <h4>Data Management</h4>
-                <ButtonWrapper>
-                    <Button onClick={onExportClick} loading={exporting}>
-                        Export Data
-                    </Button>
-                </ButtonWrapper>
-                <ButtonWrapper>
-                    <Popconfirm
-                        title={'Pomodoro Logger will restart after importing. Continue?'}
-                        onConfirm={onImportClick}
-                    >
-                        <Button loading={importing}>Import Data</Button>
-                    </Popconfirm>
-                </ButtonWrapper>
-                <ButtonWrapper>
-                    <Popconfirm title={'Sure to delete?'} onConfirm={onDeleteData}>
-                        <Button type="danger">Delete All Data</Button>
-                    </Popconfirm>
-                </ButtonWrapper>
-                <h4>Misc</h4>
-                <ButtonWrapper>
-                    <Button onClick={openIssuePage}>Feedback</Button>
-                    <br />
-                </ButtonWrapper>
-                <ButtonWrapper>
-                    <DistractingListModalButton />
-                </ButtonWrapper>
+                        <Switch
+                            onChange={switchScreenshot}
+                            checked={!!props.screenShotInterval}
+                            style={{ margin: 8 }}
+                        />
+                        <span
+                            style={{ fontWeight: 500, fontSize: 14, color: 'rgba(0, 0, 0, 0.85' }}
+                        >
+                            Screenshot
+                        </span>
+                    </Col>
+                    <Col span={8}>
+                        <h4 style={{ margin: 8 }}>Data Management</h4>
+                        <ButtonWrapper>
+                            <Button onClick={onExportClick} loading={exporting}>
+                                Export Data
+                            </Button>
+                        </ButtonWrapper>
+                        <ButtonWrapper>
+                            <Popconfirm
+                                title={'Pomodoro Logger will restart after importing. Continue?'}
+                                onConfirm={onImportClick}
+                            >
+                                <Button loading={importing}>Import Data</Button>
+                            </Popconfirm>
+                        </ButtonWrapper>
+                        <ButtonWrapper>
+                            <Popconfirm title={'Sure to delete?'} onConfirm={onDeleteData}>
+                                <Button type="danger">Delete All Data</Button>
+                            </Popconfirm>
+                        </ButtonWrapper>
+                    </Col>
+                    <Col span={8}>
+                        <h4 style={{ margin: 8 }}>Misc</h4>
+                        <ButtonWrapper>
+                            <Button onClick={openIssuePage}>Feedback</Button>
+                            <br />
+                        </ButtonWrapper>
+                        <ButtonWrapper>
+                            <DistractingListModalButton />
+                        </ButtonWrapper>
+                    </Col>
+                </Row>
+
                 <Footer style={{ position: 'fixed', bottom: 0, margin: 0, left: 0 }}>
                     Open Source @GitHub
                     <StyledIcon

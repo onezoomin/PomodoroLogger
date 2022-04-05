@@ -1,4 +1,3 @@
-import { ipcRenderer } from 'electron';
 import React, { FC } from 'react';
 import styled from 'styled-components';
 import { Label as LabelType } from '../type';
