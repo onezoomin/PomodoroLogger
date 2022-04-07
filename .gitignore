@@ -14,3 +14,4 @@ webpack-visualization/
 yarn-error.log
 __scripts/
 build/config.gypi
+.env

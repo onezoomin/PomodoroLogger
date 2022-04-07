@@ -11,15 +11,21 @@ export interface Card {
     };
     createdTime?: number;
     labels?: Label[];
-    integrations?: IntegrationInfo;
+    integration?: CardIntegration;
 }
 
+export interface CardIntegration {
+    profileName?: string;
+    gid?: string;
+}
 export interface IntegrationInfo {
+    profileName: string;
     sourceOfTruth?: string;
     gitlab?: GitlabIntegrationInfo;
 }
 export interface GitlabIntegrationInfo {
-    gid: string;
+    tokenRW?: string;
+    tokenRO?: string;
 }
 export interface AggInfo {
     lastUpdatedTime: number;

@@ -32,7 +32,7 @@ export interface Setting {
     startOnBoot: boolean;
     useHardwareAcceleration: boolean;
     distractingList: DistractingRow[];
-    integrations: IntegrationInfo;
+    integrations: IntegrationInfo | undefined;
 }
 
 export interface TimerManager {
@@ -79,7 +79,7 @@ export const defaultState: TimerState = {
     startOnBoot: false,
     useHardwareAcceleration: false,
     minimize: false,
-
+    integrations: undefined,
     monitorInterval: 1000,
     screenShotInterval: undefined,
     currentTab: 'timer',

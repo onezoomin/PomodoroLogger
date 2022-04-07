@@ -199,7 +199,7 @@ export const Setting: React.FunctionComponent<Props> = React.memo(
                     </Col>
                 </Row>
                 <Row>
-                    <Integrations setIntegrations={props.setIntegrations} />
+                    <Integrations />
                 </Row>
                 <Row style={{ padding: 12 }}>
                     <Col span={8}>

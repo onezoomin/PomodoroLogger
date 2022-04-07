@@ -1,8 +1,11 @@
-import { Button, Col, Collapse, Form, Input, Row, Select } from 'antd';
+import { Button, Col, Collapse, Form, Icon, Input, Row, Select, Switch, Tooltip } from 'antd';
+import { useLiveQuery } from 'dexie-react-hooks';
+import M from 'minimatch';
 import React, { FC, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { IntegrationInfo } from '../Kanban/type';
+import { integrationsQuery, updateIntegration } from '../../store/dexie';
+import { CardIntegration, IntegrationInfo } from '../Kanban/type';
 
 const { Panel } = Collapse;
 const { Option } = Select;
@@ -40,27 +43,137 @@ const { Option } = Select;
 //         color: ${(props) => props.backgroundColor};
 //     }
 // `;
-
-interface IntegrationsProps extends IntegrationInfo {
-    setIntegrations?: any;
+interface GitlabCardFormProps {
+    integration: CardIntegration;
+    setIntegration?: (i: CardIntegration) => void;
+    onChange?: React.Dispatch<React.SetStateAction<CardIntegration>>;
 }
+export const GitlabCardForm: FC<GitlabCardFormProps> = ({
+    setIntegration,
+    onChange,
+    integration,
+}) => {
+    // const [token, settoken] = useState(tokenProp)
+    const gidField = useRef<Input | null>(null);
 
-const GitlabForm: FC<{ tokenRO?: string; tokenRW?: string }> = React.memo(
+    const { gid: gidProp, profileName = 'default' } = integration;
+    console.log('render glCard', integration);
+
+    const onTest = () => {
+        const gid = gidField?.current?.input?.value || gidProp;
+        console.log('test', gid);
+        // TODO test a query or mutation
+    };
+    const onSave = () => {
+        const gid = gidField?.current?.input?.value || gidProp;
+        const updateVal: CardIntegration = {
+            profileName,
+            gid,
+        };
+        console.log('save', updateVal);
+        setIntegration && setIntegration(updateVal);
+    };
+    const saveOnEnter = (kEv: KeyboardEvent) => {
+        // console.log(kEv, kEv.key);
+        if (kEv.key === 'Enter') onSave();
+    };
+    const inputChangeHandler = (cEv: React.ChangeEvent<HTMLElement>) => {
+        // cEv.persist()
+        const gid = (cEv.nativeEvent.target as HTMLInputElement).value || '';
+        // console.log(cEv, gid);
+        if (onChange) {
+            const updateVal: CardIntegration = {
+                profileName,
+                gid,
+            };
+            console.log('onChage', updateVal);
+            onChange(updateVal);
+        }
+    };
+
+    return (
+        <div>
+            <Row style={{ margin: 6, minWidth: 400 }}>
+                <Col span={4} style={{ marginTop: 4, whiteSpace: 'nowrap' }}>
+                    issue gid:
+                </Col>
+                <Col span={16} style={{ paddingRight: 4 }}>
+                    <Input
+                        type="text"
+                        ref={gidField}
+                        onKeyDown={(kEv: KeyboardEvent) => {
+                            saveOnEnter(kEv);
+                        }}
+                        onChange={inputChangeHandler}
+                        placeholder={gidProp || 'Enter Gitlab Issue GID'}
+                    />
+                </Col>
+                <Col span={4}>
+                    <Button htmlType="submit" onClick={() => onTest()}>
+                        Test
+                    </Button>
+                    {setIntegration && (
+                        <Button
+                            style={{ marginLeft: 4 }}
+                            type="primary"
+                            htmlType="submit"
+                            onClick={() => onSave()}
+                        >
+                            Save
+                        </Button>
+                    )}
+                </Col>
+            </Row>
+            <Row style={{ margin: 6, minWidth: 400 }}>
+                <Col span={6} style={{ marginTop: 4, padding: 3, whiteSpace: 'nowrap' }}>
+                    "Pull" Only:
+                </Col>
+                <Col span={8} style={{ padding: 6 }}>
+                    <Tooltip
+                        title={
+                            'For now, only downstream syncing from gitlab is possible. \n\nEdit the issue content in gitlab, and use Pomodoro Logger to track time.'
+                        }
+                    >
+                        <Switch
+                            checkedChildren={<Icon type="download" />}
+                            unCheckedChildren={<Icon type="sync" />}
+                            defaultChecked={true}
+                            disabled={true}
+                        />
+                    </Tooltip>
+                </Col>
+            </Row>
+        </div>
+    );
+};
+
+const GitlabTokensForm: FC<{ tokenRO?: string; tokenRW?: string }> = React.memo(
     ({ tokenRO = '', tokenRW = '' }) => {
         // const [token, settoken] = useState(tokenProp)
         const tokenFieldRO = useRef<Input | null>(null);
         const tokenFieldRW = useRef<Input | null>(null);
 
         const onTest = (isRw = false) => {
-            const tokenField = isRw ? tokenFieldRW : tokenFieldRO;
-            const val = tokenField?.current?.input?.value ?? '';
+            const val = isRw
+                ? tokenFieldRW?.current?.input?.value || tokenRW
+                : tokenFieldRO?.current?.input?.value || tokenRO;
             console.log(isRw, val);
+            // TODO test a query or mutation
         };
         const onSave = (isRw = false) => {
             const tokenField = isRw ? tokenFieldRW : tokenFieldRO;
-            const val = tokenField?.current?.input?.value ?? '';
-            console.log(isRw, val);
+            const valRO = tokenFieldRO?.current?.input?.value || tokenRO;
+            const valRW = tokenFieldRW?.current?.input?.value || tokenRW;
+            console.log(isRw ? valRW : valRO);
             // TODO store in localDB
+            const updateVal: IntegrationInfo = {
+                profileName: 'default',
+                gitlab: {
+                    tokenRO: valRO,
+                    tokenRW: valRW,
+                },
+            };
+            updateIntegration(updateVal);
         };
         const saveOnEnter = (kEv: KeyboardEvent, isRw = false) => {
             console.log(kEv, kEv.key);
@@ -103,7 +216,7 @@ const GitlabForm: FC<{ tokenRO?: string; tokenRW?: string }> = React.memo(
                     <Col span={8} style={{ marginRight: 4 }}>
                         <Input
                             type="text"
-                            ref={tokenFieldRO}
+                            ref={tokenFieldRW}
                             onKeyDown={(kEv: KeyboardEvent) => {
                                 saveOnEnter(kEv, true);
                             }}
@@ -127,22 +240,18 @@ const GitlabForm: FC<{ tokenRO?: string; tokenRW?: string }> = React.memo(
         );
     }
 );
-export const Integrations: FC<IntegrationsProps> = React.memo(({ setIntegrations }) => {
-    const integrations = useSelector((state) => {
-        console.log(state);
-        return state.timer.integrations;
-    });
-    console.log('integrationProps', setIntegrations, integrations);
-    // const { id, title, description, color, textColor } = props;
-    // TODO get from redux
-    const tokensFromRedux = {
-        tokenRW: '',
-        tokenRO: 'glpat-eL5ae8EjE5UaSyXp44Q3',
+export const Integrations: FC = React.memo(() => {
+    const integrations = useLiveQuery(integrationsQuery) ?? [];
+
+    const tokensFromDexie = integrations[0]?.gitlab ?? {
+        tokenRW: 'defaultTokenRW',
+        tokenRO: 'defaultTokenRO',
     };
+    console.log('integrations', integrations, tokensFromDexie);
     return (
         <Collapse accordion={true} defaultActiveKey={['1Gitlab']}>
             <Panel header="Gitlab Integration" key="1Gitlab">
-                <GitlabForm {...tokensFromRedux} />
+                <GitlabTokensForm {...tokensFromDexie} />
             </Panel>
             <Panel header="Google Drive Integration" key="2GoogleDrive">
                 <p>TODO...</p>

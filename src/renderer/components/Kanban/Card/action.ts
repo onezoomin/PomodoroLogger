@@ -2,7 +2,7 @@ import { createActionCreator, createReducer } from 'deox';
 import { Dispatch } from 'redux';
 import { actions as listActions } from '../List/action';
 import { workers } from '../../../workers';
-import { Card } from '../type';
+import { Card, CardIntegration, Label } from '../type';
 
 const db = workers.dbWorkers.cardsDB;
 
@@ -69,12 +69,14 @@ export const actions = {
         dispatch(renameCard(_id, title));
         await db.update({ _id }, { $set: { title } });
     },
-    setContent: (_id: string, content: string) => async (dispatch: Dispatch) => {
-        dispatch(setContent(_id, content));
-        console.log(content);
+    setContent:
+        (_id: string, content: string, labels?: Label[], integration?: CardIntegration) =>
+        async (dispatch: Dispatch) => {
+            dispatch(setContent(_id, content));
+            console.log(content);
 
-        await db.update({ _id }, { $set: { content } });
-    },
+            await db.update({ _id }, { $set: { content, labels, integration } });
+        },
     setEstimatedTime: (_id: string, estimatedTime: number) => async (dispatch: Dispatch) => {
         dispatch(setEstimatedTime(_id, estimatedTime));
         await db.update({ _id }, { $set: { 'spentTimeInHour.estimated': estimatedTime } });
