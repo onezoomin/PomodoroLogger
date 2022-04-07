@@ -4,6 +4,7 @@ import M from 'minimatch';
 import React, { FC, KeyboardEvent, MouseEvent, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
+import { issueGidBase, addNoteToIssue, getTokenRW } from '../../../main/io/persist';
 import { integrationsQuery, updateIntegration } from '../../store/dexie';
 import { CardIntegration, IntegrationInfo } from '../Kanban/type';
 
@@ -59,10 +60,15 @@ export const GitlabCardForm: FC<GitlabCardFormProps> = ({
     const { gid: gidProp, profileName = 'default' } = integration;
     console.log('render glCard', integration);
 
-    const onTest = () => {
+    const onTest = async () => {
         const gid = gidField?.current?.input?.value || gidProp;
         console.log('test', gid);
-        // TODO test a query or mutation
+        // TODO add ui for test results for both RO and RW
+        const isRWtokenAvailable = await getTokenRW();
+        if (gid?.includes(issueGidBase) && isRWtokenAvailable) {
+            void addNoteToIssue(gid, '/spend 25m\n spent 25m on...');
+            // await results and give feedback about RW test results
+        }
     };
     const onSave = () => {
         const gid = gidField?.current?.input?.value || gidProp;

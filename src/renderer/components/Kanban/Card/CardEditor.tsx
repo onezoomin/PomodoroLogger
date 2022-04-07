@@ -23,12 +23,7 @@ import { Card, CardIntegration } from '../type';
 import { Markdown } from '../style/Markdown';
 import formatMarkdown from './formatMarkdown';
 import { EditorContainer } from '../style/editorStyle';
-import {
-    addNoteToIssue,
-    fetchGitlabIssue,
-    testIssueGid,
-    testLocalCardId,
-} from '../../../../main/io/persist';
+import { addNoteToIssue, fetchGitlabIssue, issueGidBase } from '../../../../main/io/persist';
 import { gql } from 'graphql-request';
 import { Label } from './CardLabel';
 import { GitlabCardForm } from '../../Setting/Integrations';
@@ -133,7 +128,8 @@ const _CardInDetail: FC<Props> = (props: Props) => {
             setIntegrationState(card?.integration ?? { profileName: 'default' });
             console.log('editing existing card', card);
             const getIntegration = async (gid: string) => {
-                const remoteIssue = await fetchGitlabIssue(card?.integration?.gid);
+                if (!gid.includes(issueGidBase)) return console.warn('improper issue gid', gid);
+                const remoteIssue = await fetchGitlabIssue(gid);
                 if (remoteIssue) {
                     console.log('int issue', remoteIssue);
                     if (remoteIssue.labels?.length) card.labels = remoteIssue.labels;
@@ -146,8 +142,8 @@ const _CardInDetail: FC<Props> = (props: Props) => {
                     });
                 }
             };
-            if (card._id === testLocalCardId || card?.integration?.gid) {
-                void getIntegration(card?.integration?.gid ?? testIssueGid);
+            if (card?.integration?.gid) {
+                void getIntegration(card?.integration?.gid);
             }
             setShowMarkdownPreview(true);
             const time = card.spentTimeInHour.estimated;
@@ -225,7 +221,8 @@ const _CardInDetail: FC<Props> = (props: Props) => {
     };
 
     const onAddSpentTimeToGitlab = async () => {
-        void addNoteToIssue(testIssueGid, '/spend 25m\n spent 25m on...');
+        if (!integration.gid) return console.warn('no gid to add time to');
+        void addNoteToIssue(integration.gid, '/spend 25m\n spent 25m on...');
     };
 
     const keydownEventHandler = React.useCallback(
